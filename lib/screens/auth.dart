@@ -7,10 +7,10 @@ class AuthScreen extends StatefulWidget {
   State<AuthScreen> createState() {
     return _AuthScreenState();
   }
-
 }
 
 class _AuthScreenState extends State<AuthScreen> {
+  var _isLogin = true;
 
   @override
   Widget build(BuildContext context) {
@@ -42,18 +42,29 @@ class _AuthScreenState extends State<AuthScreen> {
                         children: [
                           TextFormField(
                             decoration: const InputDecoration(
-                              labelText: 'Email Address'
-                            ),
+                                labelText: 'Email Address'),
                             keyboardType: TextInputType.emailAddress,
                             autocorrect: false,
                             textCapitalization: TextCapitalization.none,
                           ),
                           TextFormField(
-                            decoration: const InputDecoration(
-                                labelText: 'Password'
-                            ),
+                            decoration:
+                                const InputDecoration(labelText: 'Password'),
                             obscureText: true,
                             autocorrect: false,
+                          ),
+                          const SizedBox(height: 12),
+                          ElevatedButton(
+                            onPressed: () {},
+                            child: Text(_isLogin ? 'Login' : 'signup'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                _isLogin = !_isLogin;
+                              });
+                            },
+                            child:  Text(_isLogin ? 'Create an account' : 'I already have an account'),
                           ),
                         ],
                       ),
@@ -67,5 +78,4 @@ class _AuthScreenState extends State<AuthScreen> {
       ),
     );
   }
-
 }
