@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -28,10 +25,7 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for windows - '
@@ -49,6 +43,15 @@ class DefaultFirebaseOptions {
     }
   }
 
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyAZMvyEB6Gc3N5MDq2WL2WV-ICxP9OviIM',
+    appId: '1:973868272439:web:73e33e746cc54a712ce8b2',
+    messagingSenderId: '973868272439',
+    projectId: 'chat-app-868e0',
+    authDomain: 'chat-app-868e0.firebaseapp.com',
+    storageBucket: 'chat-app-868e0.appspot.com',
+  );
+
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyB6606B1X_BGf4tUDu4IC_s_EYrY5zYSmc',
     appId: '1:973868272439:android:1456667c13def16e2ce8b2',
@@ -64,5 +67,14 @@ class DefaultFirebaseOptions {
     projectId: 'chat-app-868e0',
     storageBucket: 'chat-app-868e0.appspot.com',
     iosBundleId: 'com.aditya.chatApp',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyCv82h-0YmmnyrV7VVxjdQVJ-kI7ViEmWU',
+    appId: '1:973868272439:ios:ffa03fce34ffa2f22ce8b2',
+    messagingSenderId: '973868272439',
+    projectId: 'chat-app-868e0',
+    storageBucket: 'chat-app-868e0.appspot.com',
+    iosBundleId: 'com.aditya.chatApp.RunnerTests',
   );
 }

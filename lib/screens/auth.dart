@@ -1,4 +1,10 @@
+import 'package:chat_app/widgets/user_image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:io';
+
+final _firebase = FirebaseAuth.instance;
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -10,23 +16,52 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
-  final  _form = GlobalKey<FormState>();
+  final _form = GlobalKey<FormState>();
   var _isLogin = true;
   var _enteredEmail = '';
   var _enteredPassword = '';
+  File? _selectedImage;
 
-  void _submit(){
-   final isValid = _form.currentState!.validate();
+  void _submit() async {
+    final isValid = _form.currentState!.validate();
 
-   if(isValid){
-     _form.currentState!.save();
-   }
+    if (!isValid || !_isLogin && _selectedImage == null) {
+      return;
+    }
+
+    _form.currentState!.save();
+
+    try {
+      if (_isLogin) {
+        final userCredentials = await _firebase.signInWithEmailAndPassword(
+            email: _enteredEmail, password: _enteredPassword);
+      } else {
+        final userCredentials = await _firebase.createUserWithEmailAndPassword(
+            email: _enteredEmail, password: _enteredPassword);
+        final storageRef = FirebaseStorage.instance.ref()
+            .child('user_images')
+            .child('${userCredentials.user!.uid}.jpg');
+        await storageRef.putFile(_selectedImage!);
+        final imageUrl = await storageRef.getDownloadURL();
+      }
+    } on FirebaseAuthException catch (error) {
+      if (error.code == 'email-already-in-use') {}
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error.message ?? 'Authentication failed.'),
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.primary,
+      backgroundColor: Theme
+          .of(context)
+          .colorScheme
+          .primary,
       body: Center(
         child: SingleChildScrollView(
           child: Column(
@@ -52,34 +87,44 @@ class _AuthScreenState extends State<AuthScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
+                          if (!_isLogin) UserImagePicker(
+                            onPickImage: (pickedImage) {
+                              _selectedImage = pickedImage;
+                            },),
                           TextFormField(
                             decoration: const InputDecoration(
                                 labelText: 'Email Address'),
                             keyboardType: TextInputType.emailAddress,
                             autocorrect: false,
                             textCapitalization: TextCapitalization.none,
-                            validator: (value){
-                              if(value == null || value.trim().isEmpty || !value.contains('@') ){
+                            validator: (value) {
+                              if (value == null ||
+                                  value
+                                      .trim()
+                                      .isEmpty ||
+                                  !value.contains('@')) {
                                 return 'Please enter a valid email address.';
                               }
                               return null;
                             },
-                            onSaved: (value){
+                            onSaved: (value) {
                               _enteredEmail = value!;
                             },
                           ),
                           TextFormField(
                             decoration:
-                                const InputDecoration(labelText: 'Password'),
+                            const InputDecoration(labelText: 'Password'),
                             obscureText: true,
                             autocorrect: false,
-                            validator: (value){
-                              if(value == null || value.trim().length < 6 ){
+                            validator: (value) {
+                              if (value == null || value
+                                  .trim()
+                                  .length < 6) {
                                 return 'Password must be at least 6 characters long.';
                               }
                               return null;
                             },
-                            onSaved: (value){
+                            onSaved: (value) {
                               _enteredPassword = value!;
                             },
                           ),
@@ -94,7 +139,9 @@ class _AuthScreenState extends State<AuthScreen> {
                                 _isLogin = !_isLogin;
                               });
                             },
-                            child:  Text(_isLogin ? 'Create an account' : 'I already have an account'),
+                            child: Text(_isLogin
+                                ? 'Create an account'
+                                : 'I already have an account'),
                           ),
                         ],
                       ),
